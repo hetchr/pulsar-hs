@@ -1,0 +1,6 @@
+README.md
+Setup.hs
+lib/PulsarAdminREST/API.hs
+lib/PulsarAdminREST/Types.hs
+pulsar-admin-rest.cabal
+stack.yaml

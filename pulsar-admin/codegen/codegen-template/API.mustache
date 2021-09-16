@@ -1,43 +1,34 @@
 {-# LANGUAGE DataKinds                  #-}
+{-# LANGUAGE DeriveGeneric              #-}
 {-# LANGUAGE DeriveTraversable          #-}
 {-# LANGUAGE FlexibleContexts           #-}
 {-# LANGUAGE FlexibleInstances          #-}
 {-# LANGUAGE GeneralizedNewtypeDeriving #-}
 {-# LANGUAGE OverloadedStrings          #-}
+{-# LANGUAGE RecordWildCards            #-}
 {-# LANGUAGE TypeFamilies               #-}
 {-# LANGUAGE TypeOperators              #-}
-{-# OPTIONS_GHC
--fno-warn-unused-binds -fno-warn-unused-imports -freduction-depth=328 #-}
 
-module {{title}}.API
+module Pulsar.Admin.API
   ( -- * Client
-{{#apiInfo}}{{#apis}}{{#operations}}{{#operation}}  , {{operationId}}
-{{/operation}}{{/operations}}{{/apis}}{{/apiInfo}}
+{{#apiInfo}}{{#apis}}{{#operations}}{{#operation}}    {{operationId}}{{^-last}}
+  , {{/-last}}{{/operation}}{{^-last}}
+  , {{/-last}}{{/operations}}{{/apis}}{{/apiInfo}}
+{{#apiInfo}}{{#apis}}{{#operations}}{{#operation}}{{#allParams.0}}  , {{operationIdCamelCase}}Parameters (..)
+{{/allParams.0}}{{/operation}}{{/operations}}{{/apis}}{{/apiInfo}}
   ) where
 
-import           {{title}}.Types
+import           Pulsar.Admin.Types
 
 import           Data.Aeson                         (Value)
-import           Data.Data                          (Data)
-import           Data.Function                      ((&))
 import qualified Data.Map                           as Map
-import           Data.Monoid                        ((<>))
 import           Data.Proxy                         (Proxy (..))
-import           Data.Set                           (Set)
 import           Data.Text                          (Text)
 import qualified Data.Text                          as T
-import           Data.Time
-import           Data.UUID                          (UUID)
-import           GHC.Exts                           (IsString (..))
 import           GHC.Generics                       (Generic)
 import           Servant.API
-import           Servant.API.Verbs                  (StdMethod (..), Verb)
-import           Servant.Client                     (ClientEnv, Scheme (Http), ClientError, client,
-                                                     mkClientEnv, parseBaseUrl)
-import           Servant.Client.Core                (baseUrlPort, baseUrlHost)
+import           Servant.Client                     (client)
 import           Servant.Client.Internal.HttpClient (ClientM (..))
-import           Web.FormUrlEncoded
-import           Web.HttpApiData
 
 
 {{#apiInfo}}{{#apis}}{{#operations}}{{#operation}}{{#hasFormParams}}
@@ -103,11 +94,21 @@ formatSeparatedQueryList char = T.intercalate (T.singleton char) . map toQueryPa
 {{#apiInfo}}
 {{#apis}}{{#operations}}{{#operation}}
 -- ^ {{& notes}}
-type {{#lambda.titlecase}}{{operationId}}{{/lambda.titlecase}}API =
+type {{operationIdCamelCase}}API =
       "admin" :> "v2" :> {{& vendorExtensions.x-route-type}}
 
-{{operationId}} :: {{& vendorExtensions.x-client-type}}
-{{operationId}} = client (Proxy :: Proxy {{#lambda.titlecase}}{{operationId}}{{/lambda.titlecase}}API)
+{{#allParams.0}}
+data {{operationIdCamelCase}}Parameters = {{operationIdCamelCase}}Parameters
+  { {{#allParams}}{{operationId}}{{#lambda.titlecase}}{{paramName}}{{/lambda.titlecase}} :: {{^required}}{{^isBodyParam}}Maybe {{/isBodyParam}}{{/required}}{{dataType}} -- ^ {{& description}}{{^-last}}
+  , {{/-last}}{{/allParams}}
+  } deriving (Show, Eq, Generic)
 
+{{operationId}} :: {{operationIdCamelCase}}Parameters -> ClientM {{returnType}}{{^returnType}}NoContent{{/returnType}}
+{{operationId}} {{operationIdCamelCase}}Parameters {..} = client (Proxy :: Proxy {{operationIdCamelCase}}API){{#allParams}}{{^isBodyParam}} ({{#required}}{{#isQueryParam}}Just {{/isQueryParam}}{{/required}}{{operationId}}{{#lambda.titlecase}}{{paramName}}{{/lambda.titlecase}}){{/isBodyParam}}{{/allParams}}{{#allParams}}{{#isBodyParam}} {{operationId}}{{#lambda.titlecase}}{{paramName}}{{/lambda.titlecase}}{{/isBodyParam}}{{/allParams}}
+{{/allParams.0}}
+{{^allParams.0}}
+{{operationId}} :: ClientM {{returnType}}{{^returnType}}NoContent{{/returnType}}
+{{operationId}} = client (Proxy :: Proxy {{operationIdCamelCase}}API)
+{{/allParams.0}}
 {{/operation}}{{/operations}}{{/apis}}
 {{/apiInfo}}

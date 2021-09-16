@@ -29,7 +29,5 @@ npx @openapitools/openapi-generator-cli generate \
         -t codegen-template
 ```
 
- * Remove the first comma in `API.hs`
- * Replace ` m ` by ` ClientM ` in the functions
  * Reformat files
  * Move files

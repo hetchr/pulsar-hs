@@ -1,0 +1,98 @@
+name: pulsar-client-hs
+version: 1.0.0
+license: Apache-2.0
+license-file: LICENSE
+cabal-version: >= 1.18
+build-type: Simple
+extra-source-files:
+  includes/*.h
+
+library
+    default-language:   Haskell2010
+    build-depends:
+          base == 4.*
+        , bindings-DSL >= 1.0.25 && < 1.1
+        , bytestring >= 0.10.12.0 && < 0.11
+        , containers >= 0.6.5.1 && < 0.7
+        , resourcet >= 1.2.4.3 && < 1.3
+        , transformers >= 0.5.6.2 && < 0.6
+    hs-source-dirs:     src
+    default-extensions:
+        ForeignFunctionInterface
+    exposed-modules:
+        Pulsar.Client
+        -- Foreign (Generated)
+        Pulsar.Client.Internal.Foreign.Authentication
+        Pulsar.Client.Internal.Foreign.ClientConfiguration
+        Pulsar.Client.Internal.Foreign.Client
+        Pulsar.Client.Internal.Foreign.ConsumerConfiguration
+        Pulsar.Client.Internal.Foreign.Consumer
+        Pulsar.Client.Internal.Foreign.Message
+        Pulsar.Client.Internal.Foreign.MessageId
+        Pulsar.Client.Internal.Foreign.MessageRouter
+        Pulsar.Client.Internal.Foreign.ProducerConfiguration
+        Pulsar.Client.Internal.Foreign.Producer
+        Pulsar.Client.Internal.Foreign.ReaderConfiguration
+        Pulsar.Client.Internal.Foreign.Reader
+        Pulsar.Client.Internal.Foreign.Result
+        Pulsar.Client.Internal.Foreign.StringList
+        Pulsar.Client.Internal.Foreign.StringMap
+        -- Wrappers (Ease usage)
+        Pulsar.Client.Internal.Wrapper.Authentication
+        Pulsar.Client.Internal.Wrapper.ClientConfiguration
+        Pulsar.Client.Internal.Wrapper.ConsumerConfiguration
+        Pulsar.Client.Internal.Wrapper.Consumer
+        Pulsar.Client.Internal.Wrapper.Message
+        Pulsar.Client.Internal.Wrapper.MessageId
+        Pulsar.Client.Internal.Wrapper.MessageRouter
+        Pulsar.Client.Internal.Wrapper.ProducerConfiguration
+        Pulsar.Client.Internal.Wrapper.Producer
+        Pulsar.Client.Internal.Wrapper.ReaderConfiguration
+        Pulsar.Client.Internal.Wrapper.Reader
+        Pulsar.Client.Internal.Wrapper.Result
+    other-modules:
+        Pulsar.Client.Internal.Wrapper.Utils
+        Paths_pulsar_client_hs
+    ghc-options: -Wunused-binds -Wunused-imports -Worphans
+
+    include-dirs:
+        includes
+
+    includes:
+        authentication.h
+        client_configuration.h
+        client.h
+        consumer_configuration.h
+        consumer.h
+        message.h
+        message_id.h
+        message_router.h
+        producer_configuration.h
+        producer.h
+        reader_configuration.h
+        reader.h
+        result.h
+        string_list.h
+        string_map.h
+
+executable pulsar-client-hs-example-consumer
+    build-depends: base, pulsar-client-hs, bytestring
+    default-language: Haskell2010
+    extra-libraries: pulsar
+    main-is: Main.hs
+    hs-source-dirs: examples/Consumer
+
+executable pulsar-client-hs-example-producer
+    build-depends: base, pulsar-client-hs, bytestring, resourcet, transformers
+    default-language: Haskell2010
+    extra-libraries: pulsar
+    main-is: Main.hs
+    hs-source-dirs: examples/Producer
+
+executable pulsar-client-hs-example-reader
+    build-depends: base, pulsar-client-hs, bytestring
+    default-language: Haskell2010
+    extra-libraries: pulsar
+    main-is: Main.hs
+    hs-source-dirs: examples/Reader
+

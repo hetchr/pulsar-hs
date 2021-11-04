@@ -1,0 +1,103 @@
+diff --git a/include/pulsar/c/client.h b/include/pulsar/c/client.h
+index 47aabec3bdc..5f209ba5ead 100644
+--- a/include/pulsar/c/client.h
++++ b/include/pulsar/c/client.h
+@@ -90,11 +90,21 @@ PULSAR_PUBLIC void pulsar_client_subscribe_async(pulsar_client_t *client, const
+                                                  const pulsar_consumer_configuration_t *conf,
+                                                  pulsar_subscribe_callback callback, void *ctx);
+ 
++PULSAR_PUBLIC pulsar_result pulsar_client_subscribe_multi_topics(pulsar_client_t *client, const char **topics,
++                                                                 int topicsCount, const char *subscriptionName,
++                                                                 const pulsar_consumer_configuration_t *conf,
++                                                                 pulsar_consumer_t **consumer);
++
+ PULSAR_PUBLIC void pulsar_client_subscribe_multi_topics_async(pulsar_client_t *client, const char **topics,
+                                                               int topicsCount, const char *subscriptionName,
+                                                               const pulsar_consumer_configuration_t *conf,
+                                                               pulsar_subscribe_callback callback, void *ctx);
+ 
++PULSAR_PUBLIC pulsar_result pulsar_client_subscribe_pattern(pulsar_client_t *client, const char *topicPattern,
++                                                            const char *subscriptionName,
++                                                            const pulsar_consumer_configuration_t *conf,
++                                                            pulsar_consumer_t **consumer);
++
+ PULSAR_PUBLIC void pulsar_client_subscribe_pattern_async(pulsar_client_t *client, const char *topicPattern,
+                                                          const char *subscriptionName,
+                                                          const pulsar_consumer_configuration_t *conf,
+@@ -155,4 +165,4 @@ PULSAR_PUBLIC void pulsar_client_free(pulsar_client_t *client);
+ 
+ #ifdef __cplusplus
+ }
+-#endif
+\ No newline at end of file
++#endif
+diff --git a/include/pulsar/c/reader_configuration.h b/include/pulsar/c/reader_configuration.h
+index 9d07476f82a..cc8436cdc46 100644
+--- a/include/pulsar/c/reader_configuration.h
++++ b/include/pulsar/c/reader_configuration.h
+@@ -20,6 +20,8 @@
+ #pragma once
+ 
+ #include <pulsar/defines.h>
++#include <pulsar/c/message.h>
++#include <pulsar/c/reader.h>
+ 
+ #ifdef __cplusplus
+ extern "C" {
+diff --git a/lib/c/c_Client.cc b/lib/c/c_Client.cc
+index 74da773994c..519039c4819 100644
+--- a/lib/c/c_Client.cc
++++ b/lib/c/c_Client.cc
+@@ -98,6 +98,28 @@ void pulsar_client_subscribe_async(pulsar_client_t *client, const char *topic, c
+         std::bind(&handle_subscribe_callback, std::placeholders::_1, std::placeholders::_2, callback, ctx));
+ }
+ 
++pulsar_result pulsar_client_subscribe_multi_topics(pulsar_client_t *client, const char **topics, int topicsCount,
++                                                   const char *subscriptionName,
++                                                   const pulsar_consumer_configuration_t *conf,
++                                                   pulsar_consumer_t **c_consumer) {
++    pulsar::Consumer consumer;
++    std::vector<std::string> topicsList;
++    for (int i = 0; i < topicsCount; i++) {
++        topicsList.push_back(topics[i]);
++    }
++
++    pulsar::Result res =
++        client->client->subscribe(
++            topicsList, subscriptionName, conf->consumerConfiguration, consumer);
++    if (res == pulsar::ResultOk) {
++        (*c_consumer) = new pulsar_consumer_t;
++        (*c_consumer)->consumer = consumer;
++        return pulsar_result_Ok;
++    } else {
++        return (pulsar_result)res;
++    }
++}
++
+ void pulsar_client_subscribe_multi_topics_async(pulsar_client_t *client, const char **topics, int topicsCount,
+                                                 const char *subscriptionName,
+                                                 const pulsar_consumer_configuration_t *conf,
+@@ -112,6 +134,23 @@ void pulsar_client_subscribe_multi_topics_async(pulsar_client_t *client, const c
+         std::bind(&handle_subscribe_callback, std::placeholders::_1, std::placeholders::_2, callback, ctx));
+ }
+ 
++pulsar_result pulsar_client_subscribe_pattern(pulsar_client_t *client, const char *topicPattern,
++                                              const char *subscriptionName,
++                                              const pulsar_consumer_configuration_t *conf,
++                                              pulsar_consumer_t **c_consumer) {
++    pulsar::Consumer consumer;
++    pulsar::Result res =
++        client->client->subscribeWithRegex(
++            topicPattern, subscriptionName, conf->consumerConfiguration, consumer);
++    if (res == pulsar::ResultOk) {
++        (*c_consumer) = new pulsar_consumer_t;
++        (*c_consumer)->consumer = consumer;
++        return pulsar_result_Ok;
++    } else {
++        return (pulsar_result)res;
++    }
++}
++
+ void pulsar_client_subscribe_pattern_async(pulsar_client_t *client, const char *topicPattern,
+                                            const char *subscriptionName,
+                                            const pulsar_consumer_configuration_t *conf,

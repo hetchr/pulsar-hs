@@ -9,5 +9,5 @@ mkDerivation {
   executableHaskellDepends = [ base bindings-DSL bytestring containers deepseq resourcet transformers ];
   librarySystemDepends = [ pulsar-client-cpp ];
   libraryPkgconfigDepends = [ pulsar-client-cpp ];
-  license = lib.licenses.asl20;
+  license = lib.licenses.bsd2;
 }

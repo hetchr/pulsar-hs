@@ -1,8 +1,15 @@
-name: pulsar-client-hs-examples
-version: 1.0.0
-license: Apache-2.0
-cabal-version: >= 1.18
-build-type: Simple
+name:                pulsar-client-hs-examples
+license:             BSD2
+license-file:        LICENSE
+synopsis:            Apache Pulsar Client examples
+description:         Apache Pulsar Client examples
+homepage:            https://github.com/hetchr/pulsar-hs/pulsar-client-hs/examples
+author:              Hetchr
+maintainer:          hey@hetchr.com
+copyright:           Hetchr - 2021
+category:            Protocol
+build-type:          Simple
+cabal-version:       >=1.18
 
 executable pulsar-client-hs-example-consumer
     build-depends: base, pulsar-client-hs, bytestring

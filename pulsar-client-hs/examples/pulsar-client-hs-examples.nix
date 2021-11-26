@@ -10,5 +10,5 @@ mkDerivation {
   executableHaskellDepends = [
     base bytestring pulsar-client-hs resourcet transformers
   ];
-  license = lib.licenses.asl20;
+  license = lib.licenses.bsd;
 }

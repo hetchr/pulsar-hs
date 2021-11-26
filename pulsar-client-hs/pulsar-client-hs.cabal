@@ -14,6 +14,7 @@ library
         , bindings-DSL >= 1.0.25 && < 1.1
         , bytestring >= 0.10.12.0 && < 0.11
         , containers >= 0.6.5.1 && < 0.7
+        , deepseq >= 1.4.4.0 && < 1.5
         , resourcet >= 1.2.4.3 && < 1.3
         , transformers >= 0.5.6.2 && < 0.6
     hs-source-dirs:     src
@@ -75,24 +76,24 @@ library
         string_list.h
         string_map.h
 
-executable pulsar-client-hs-example-consumer
-    build-depends: base, pulsar-client-hs, bytestring
-    default-language: Haskell2010
     extra-libraries: pulsar
-    main-is: Main.hs
-    hs-source-dirs: examples/Consumer
 
-executable pulsar-client-hs-example-producer
-    build-depends: base, pulsar-client-hs, bytestring, resourcet, transformers
-    default-language: Haskell2010
-    extra-libraries: pulsar
-    main-is: Main.hs
-    hs-source-dirs: examples/Producer
+-- executable pulsar-client-hs-example-consumer
+--     build-depends: base, pulsar-client-hs, bytestring
+--     default-language: Haskell2010
+--     main-is: Main.hs
+--     hs-source-dirs: examples/Consumer
 
-executable pulsar-client-hs-example-reader
-    build-depends: base, pulsar-client-hs, bytestring
-    default-language: Haskell2010
-    extra-libraries: pulsar
-    main-is: Main.hs
-    hs-source-dirs: examples/Reader
+-- executable pulsar-client-hs-example-producer
+--     build-depends: base, pulsar-client-hs, bytestring, resourcet, transformers
+--     default-language: Haskell2010
+--     main-is: Main.hs
+--     hs-source-dirs: examples/Producer
+
+-- executable pulsar-client-hs-example-reader
+--     build-depends: base, pulsar-client-hs, bytestring
+--     default-language: Haskell2010
+--     main-is: Main.hs
+--     hs-source-dirs: examples/Reader
+--     include-dirs: includes
 

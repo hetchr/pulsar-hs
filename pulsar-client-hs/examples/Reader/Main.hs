@@ -26,4 +26,4 @@ main =
         (,)
           <$> (messageId >>= liftIO . messageIdShow)
           <*> messageContent
-    liftIO $ print messages
+    liftIO $ forM_ messages print

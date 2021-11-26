@@ -19,10 +19,14 @@ module Pulsar.Client.Internal.Wrapper.Message
   )
 where
 
+import Control.DeepSeq (force)
+import Control.Exception (evaluate)
 import Control.Monad.Trans.Reader
 import Control.Monad.Trans.Resource
 import Data.ByteString
-import Data.ByteString.Unsafe
+import Data.ByteString.Builder (byteString, toLazyByteString)
+import Data.ByteString.Lazy (toStrict)
+import Data.ByteString.Unsafe (unsafePackAddressLen)
 import Foreign.C.Types
 import GHC.Ptr
 import Pulsar.Client.Internal.Foreign.Message
@@ -41,8 +45,7 @@ data MessageBuilder = MessageBuilder
     deliveredAfter :: Maybe Word64,
     deliverAt :: Maybe Word64,
     replicationClusters :: [String],
-    disableReplication :: Maybe Bool,
-    schemaVersion :: Maybe String
+    disableReplication :: Maybe Bool
   }
 
 defaultMessageBuilder :: MessageBuilder
@@ -74,7 +77,6 @@ buildMessage MessageBuilder {..} = do
   whenOption deliverAt $ c'pulsar_message_set_deliver_at config . CULong
   whenOptionStringList replicationClusters $ c'pulsar_message_set_replication_clusters config
   whenOption disableReplication $ c'pulsar_message_disable_replication config . fromBool
-  whenOptionString schemaVersion $ c'pulsar_message_set_schema_version config
   return (release, Message config)
 
 consumeMessage :: Message -> ReaderT Message IO a -> IO a
@@ -98,7 +100,8 @@ messageContent = do
   liftIO $ do
     Ptr addr <- c'pulsar_message_get_data ptr
     len <- c'pulsar_message_get_length ptr
-    unsafePackAddressLen (fromIntegral len) addr
+    ptrBS <- unsafePackAddressLen (fromIntegral len) addr
+    evaluate $ force $ toStrict $ toLazyByteString $ byteString ptrBS
 
 messageId :: ReaderT Message IO MessageId
 messageId = ask >>= liftIO . fmap MessageId . c'pulsar_message_get_message_id . unMessage

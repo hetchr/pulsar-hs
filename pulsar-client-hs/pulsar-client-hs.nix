@@ -1,12 +1,12 @@
-{ mkDerivation, base, lib, pulsar-client-cpp, bindings-DSL, bytestring, containers, resourcet, transformers }:
+{ mkDerivation, base, lib, pulsar-client-cpp, bindings-DSL, bytestring, containers, deepseq, resourcet, transformers }:
 mkDerivation {
   pname = "pulsar-client-hs";
   version = "1.0.0";
   src = ./.;
-  isLibrary = false;
-  isExecutable = true;
+  isLibrary = true;
+  isExecutable = false;
   configureFlags = [ "--extra-include-dirs=${pulsar-client-cpp}/include" ];
-  executableHaskellDepends = [ base bindings-DSL bytestring containers resourcet transformers ];
+  executableHaskellDepends = [ base bindings-DSL bytestring containers deepseq resourcet transformers ];
   librarySystemDepends = [ pulsar-client-cpp ];
   libraryPkgconfigDepends = [ pulsar-client-cpp ];
   license = lib.licenses.asl20;

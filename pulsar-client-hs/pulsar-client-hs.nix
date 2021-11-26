@@ -3,8 +3,8 @@ mkDerivation {
   pname = "pulsar-client-hs";
   version = "1.0.0";
   src = ./.;
-  isLibrary = false;
-  isExecutable = true;
+  isLibrary = true;
+  isExecutable = false;
   configureFlags = [ "--extra-include-dirs=${pulsar-client-cpp}/include" ];
   executableHaskellDepends = [ base bindings-DSL bytestring containers resourcet transformers ];
   librarySystemDepends = [ pulsar-client-cpp ];

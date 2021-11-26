@@ -74,7 +74,7 @@ buildMessage MessageBuilder {..} = do
   whenOption deliverAt $ c'pulsar_message_set_deliver_at config . CULong
   whenOptionStringList replicationClusters $ c'pulsar_message_set_replication_clusters config
   whenOption disableReplication $ c'pulsar_message_disable_replication config . fromBool
-  whenOptionString schemaVersion $ c'pulsar_message_set_schema_version config
+  -- whenOptionString schemaVersion $ c'pulsar_message_set_schema_version config
   return (release, Message config)
 
 consumeMessage :: Message -> ReaderT Message IO a -> IO a

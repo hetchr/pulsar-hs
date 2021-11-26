@@ -1,0 +1,25 @@
+name: pulsar-client-hs-examples
+version: 1.0.0
+license: Apache-2.0
+cabal-version: >= 1.18
+build-type: Simple
+
+executable pulsar-client-hs-example-consumer
+    build-depends: base, pulsar-client-hs, bytestring
+    default-language: Haskell2010
+    main-is: Main.hs
+    hs-source-dirs: Consumer
+
+executable pulsar-client-hs-example-producer
+    build-depends: base, pulsar-client-hs, bytestring, resourcet, transformers
+    default-language: Haskell2010
+    main-is: Main.hs
+    hs-source-dirs: Producer
+
+executable pulsar-client-hs-example-reader
+    build-depends: base, pulsar-client-hs, bytestring
+    default-language: Haskell2010
+    main-is: Main.hs
+    hs-source-dirs: Reader
+    include-dirs: includes
+

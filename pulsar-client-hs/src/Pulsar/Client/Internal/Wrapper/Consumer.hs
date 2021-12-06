@@ -23,53 +23,53 @@ import Pulsar.Client.Internal.Wrapper.Utils
 
 newtype Consumer = Consumer {unConsumer :: Ptr C'pulsar_consumer_t}
 
-withConsumer' :: Consumer -> ReaderT Consumer IO a -> IO a
+withConsumer' :: MonadIO m => Consumer -> ReaderT Consumer m a -> m a
 withConsumer' consumer@(Consumer ptrConsumer) f = do
   result <- runReaderT f consumer
-  c'pulsar_consumer_unsubscribe ptrConsumer
-  c'pulsar_consumer_close ptrConsumer
-  c'pulsar_consumer_free ptrConsumer
+  liftIO $ c'pulsar_consumer_unsubscribe ptrConsumer
+  liftIO $ c'pulsar_consumer_close ptrConsumer
+  liftIO $ c'pulsar_consumer_free ptrConsumer
   return result
 
-addConsumer :: (Ptr C'pulsar_consumer_t -> a -> IO b) -> a -> ReaderT Consumer IO b
+addConsumer :: MonadIO m => (Ptr C'pulsar_consumer_t -> a -> IO b) -> a -> ReaderT Consumer m b
 addConsumer f x = do
   Consumer consumer <- ask
   liftIO $ f consumer x
 
-receiveMessage :: (RawResult -> IO a) -> ReaderT Message IO a -> ReaderT Consumer IO a
+receiveMessage :: MonadUnliftIO m => (RawResult -> m a) -> ReaderT Message m a -> ReaderT Consumer m a
 receiveMessage onFailed f = do
   Consumer consumer <- ask
   withPtrPtr $ \msgPtr -> do
-    result <- c'pulsar_consumer_receive consumer msgPtr
+    result <- liftIO $ c'pulsar_consumer_receive consumer msgPtr
     peekOn (isOk result) msgPtr (onFailed $ RawResult result) $ flip (consumeMessage . Message) f
 
-receiveMessageWithTimeout :: Int32 -> (RawResult -> IO a) -> ReaderT Message IO a -> ReaderT Consumer IO a
+receiveMessageWithTimeout :: MonadUnliftIO m => Int32 -> (RawResult -> m a) -> ReaderT Message m a -> ReaderT Consumer m a
 receiveMessageWithTimeout timeout onFailed f = do
   Consumer consumer <- ask
   withPtrPtr $ \msgPtr -> do
-    result <- c'pulsar_consumer_receive_with_timeout consumer msgPtr $ CInt timeout
+    result <- liftIO $ c'pulsar_consumer_receive_with_timeout consumer msgPtr $ CInt timeout
     peekOn (isOk result) msgPtr (onFailed $ RawResult result) $ flip (consumeMessage . Message) f
 
-acknowledgeMessage :: Message -> ReaderT Consumer IO RawResult
+acknowledgeMessage :: MonadIO m => Message -> ReaderT Consumer m RawResult
 acknowledgeMessage = fmap RawResult . addConsumer c'pulsar_consumer_acknowledge . unMessage
 
-acknowledgeMessageId :: MessageId -> ReaderT Consumer IO RawResult
+acknowledgeMessageId :: MonadIO m => MessageId -> ReaderT Consumer m RawResult
 acknowledgeMessageId = fmap RawResult . addConsumer c'pulsar_consumer_acknowledge_id . unMessageId
 
-acknowledgeCumulativeMessage :: Message -> ReaderT Consumer IO RawResult
+acknowledgeCumulativeMessage :: MonadIO m => Message -> ReaderT Consumer m RawResult
 acknowledgeCumulativeMessage = fmap RawResult . addConsumer c'pulsar_consumer_acknowledge_cumulative . unMessage
 
-acknowledgeCumulativeMessageId :: MessageId -> ReaderT Consumer IO RawResult
+acknowledgeCumulativeMessageId :: MonadIO m => MessageId -> ReaderT Consumer m RawResult
 acknowledgeCumulativeMessageId = fmap RawResult . addConsumer c'pulsar_consumer_acknowledge_cumulative_id . unMessageId
 
-acknowledgeNegativeMessage :: Message -> ReaderT Consumer IO ()
+acknowledgeNegativeMessage :: MonadIO m => Message -> ReaderT Consumer m ()
 acknowledgeNegativeMessage = addConsumer c'pulsar_consumer_negative_acknowledge . unMessage
 
-acknowledgeNegativeMessageId :: MessageId -> ReaderT Consumer IO ()
+acknowledgeNegativeMessageId :: MonadIO m => MessageId -> ReaderT Consumer m ()
 acknowledgeNegativeMessageId = addConsumer c'pulsar_consumer_negative_acknowledge_id . unMessageId
 
-redeliverUnacknowledgeMessages :: ReaderT Consumer IO ()
+redeliverUnacknowledgeMessages :: MonadIO m => ReaderT Consumer m ()
 redeliverUnacknowledgeMessages = ask >>= liftIO . c'pulsar_consumer_redeliver_unacknowledged_messages . unConsumer
 
-seekConsumer :: MessageId -> ReaderT Consumer IO RawResult
+seekConsumer :: MonadIO m => MessageId -> ReaderT Consumer m RawResult
 seekConsumer = fmap RawResult . addConsumer c'pulsar_consumer_seek . unMessageId

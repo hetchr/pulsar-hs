@@ -102,7 +102,7 @@ defaultProducerConfiguration =
       producerEncryptionKey = Nothing
     }
 
-mkProducerConfiguration :: ProducerConfiguration -> ResourceT IO (Ptr C'_pulsar_producer_configuration)
+mkProducerConfiguration :: MonadIO m => ProducerConfiguration -> ResourceT m (Ptr C'_pulsar_producer_configuration)
 mkProducerConfiguration ProducerConfiguration {..} = do
   config <- new c'pulsar_producer_configuration_create c'pulsar_producer_configuration_free
   whenOptionString producerName $ c'pulsar_producer_configuration_set_producer_name config

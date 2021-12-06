@@ -15,21 +15,21 @@ import Pulsar.Client.Internal.Wrapper.Utils
 
 newtype Producer = Producer {unProducer :: Ptr C'pulsar_producer_t}
 
-withProducer' :: Producer -> ReaderT Producer IO a -> IO a
+withProducer' :: MonadIO m => Producer -> ReaderT Producer m a -> m a
 withProducer' producer@(Producer ptrProducer) f = do
   result <- runReaderT f producer
-  c'pulsar_producer_flush ptrProducer
-  c'pulsar_producer_close ptrProducer
-  c'pulsar_producer_free ptrProducer
+  liftIO $ c'pulsar_producer_flush ptrProducer
+  liftIO $ c'pulsar_producer_close ptrProducer
+  liftIO $ c'pulsar_producer_free ptrProducer
   return result
 
-sendMessage :: Message -> ReaderT Producer IO RawResult
+sendMessage :: MonadIO m => Message -> ReaderT Producer m RawResult
 sendMessage msg = do
   Producer producer <- ask
   liftIO $ RawResult <$> c'pulsar_producer_send producer (unMessage msg)
 
-flushMessages :: ReaderT Producer IO RawResult
+flushMessages :: MonadIO m => ReaderT Producer m RawResult
 flushMessages = ask >>= liftIO . fmap RawResult . c'pulsar_producer_flush . unProducer
 
-producerLastSequenceId :: ReaderT Producer IO Int64
+producerLastSequenceId :: MonadIO m => ReaderT Producer m Int64
 producerLastSequenceId = ask >>= liftIO . fmap (\(CLong x) -> x) . c'pulsar_producer_get_last_sequence_id . unProducer

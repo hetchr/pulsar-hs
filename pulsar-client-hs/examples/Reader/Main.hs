@@ -7,6 +7,7 @@ where
 
 import Control.Monad
 import Control.Monad.IO.Class
+import qualified Data.ByteString.Char8 as B
 import Pulsar.Client
 
 topic :: TopicName
@@ -24,6 +25,6 @@ main =
     messages <-
       consumeReader defaultReaderConfiguration topic messageIdEarliest (onError "initiate" >=> const (return [])) $
         (,)
-          <$> (messageId >>= liftIO . messageIdShow)
+          <$> messageId messageIdShow
           <*> messageContent
     liftIO $ forM_ messages print

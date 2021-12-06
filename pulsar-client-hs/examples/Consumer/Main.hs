@@ -25,6 +25,6 @@ main =
     withConsumer defaultConsumerConfiguration "a-sub" (Topic topic) (onError "initiate") $
       forever $
         receiveMessage (onError "recieveMessage") $ do
-          id' <- messageId >>= liftIO . messageIdShow
+          id' <- messageId messageIdShow
           content <- messageContent
           liftIO $ B.putStrLn $ "Message (" <> B.pack id' <> "): " <> content

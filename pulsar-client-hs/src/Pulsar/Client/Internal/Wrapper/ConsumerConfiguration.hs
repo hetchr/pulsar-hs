@@ -69,7 +69,7 @@ defaultConsumerConfiguration =
       consumerProperties = mempty
     }
 
-mkConsumerConfiguration :: ConsumerConfiguration -> ResourceT IO (Ptr C'_pulsar_consumer_configuration)
+mkConsumerConfiguration :: MonadIO m => ConsumerConfiguration -> ResourceT m (Ptr C'_pulsar_consumer_configuration)
 mkConsumerConfiguration ConsumerConfiguration {..} = do
   config <- new c'pulsar_consumer_configuration_create c'pulsar_consumer_configuration_free
   whenOption consumerType $ c'pulsar_consumer_configuration_set_consumer_type config . nativeConsumerType

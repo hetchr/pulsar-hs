@@ -15,11 +15,16 @@ module Pulsar.Client.Internal.Wrapper.Utils
     peekOn,
     -- Reexports
     MonadIO,
+    MonadUnliftIO,
+    ReaderT,
     ResourceT,
     Ptr,
     module Reexport,
     M.Map,
     liftIO,
+    runReaderT,
+    ask,
+    lift,
     nullPtr,
     peekCString,
     withCString,
@@ -28,25 +33,25 @@ where
 
 import Control.Exception
 import Control.Monad.IO.Class
-import Control.Monad.Trans.Resource
+import Control.Monad.Trans.Class
+import Control.Monad.Trans.Reader
+import Control.Monad.Trans.Resource hiding (liftResourceT)
 import Data.ByteString.Internal
 import Data.Foldable
 import Data.Int as Reexport
 import qualified Data.Map.Strict as M
 import Data.Word as Reexport
-import Foreign.C.String
 import Foreign.C.Types as Reexport
-import Foreign.ForeignPtr
-import Foreign.Marshal.Alloc
-import Foreign.Marshal.Array
 import Foreign.Storable
 import GHC.Ptr
+import UnliftIO.Foreign hiding (new)
+import UnliftIO.Resource (liftResourceT)
 
-new :: IO a -> (a -> IO ()) -> ResourceT IO a
-new create delete = snd <$> allocate create delete
+new :: MonadIO m => IO a -> (a -> IO ()) -> ResourceT m a
+new create delete = snd <$> liftResourceT (allocate create delete)
 {-# INLINE new #-}
 
-toCString :: String -> ResourceT IO CString
+toCString :: MonadIO m => String -> ResourceT m CString
 toCString x = new (newCString x) free
 {-# INLINE toCString #-}
 
@@ -79,8 +84,8 @@ whenOptionStringList xs f = liftIO $ do
   traverse_ free cs
 {-# INLINE whenOptionStringList #-}
 
-whenOptionRaw :: MonadIO m => Maybe a -> (a -> ResourceT m ()) -> ResourceT m ()
-whenOptionRaw (Just x) f = f x
+whenOptionRaw :: MonadIO m => Maybe a -> (a -> ResourceT IO ()) -> ResourceT m ()
+whenOptionRaw (Just x) f = liftResourceT $ f x
 whenOptionRaw Nothing _ = pure ()
 {-# INLINE whenOptionRaw #-}
 
@@ -88,22 +93,14 @@ whenOptionMap :: MonadIO m => M.Map String String -> (CString -> CString -> IO (
 whenOptionMap xs f = liftIO $ mapM_ (\(k, v) -> withCString k $ \k' -> withCString v $ \v' -> f k' v') $ M.toList xs
 {-# INLINE whenOptionMap #-}
 
-fromBool :: Bool -> CInt
-fromBool x = if x then 1 else 0
-{-# INLINE fromBool #-}
-
-toBool :: CInt -> Bool
-toBool x = x /= 0
-{-# INLINE toBool #-}
-
-withPtrPtr :: Storable a => MonadIO m => (Ptr a -> IO b) -> m b
-withPtrPtr f = liftIO $ mallocForeignPtr >>= flip withForeignPtr f
+withPtrPtr :: (Storable a, MonadIO m, MonadUnliftIO m, MonadTrans t) => (Ptr a -> m b) -> t m b
+withPtrPtr f = lift $ liftIO mallocForeignPtr >>= flip withForeignPtr f
 {-# INLINE withPtrPtr #-}
 
-peekOn :: Storable a => Bool -> Ptr a -> IO b -> (a -> IO b) -> IO b
+peekOn :: (MonadIO m, Storable a) => Bool -> Ptr a -> m b -> (a -> m b) -> m b
 peekOn cond ptr def f =
   if cond
-    then peek ptr >>= f
+    then liftIO (peek ptr) >>= f
     else def
 {-# INLINE peekOn #-}
 

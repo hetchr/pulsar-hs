@@ -44,7 +44,7 @@ defaultClientConfiguration =
       clientValidateHostname = Nothing
     }
 
-mkClientConfiguration :: ClientConfiguration -> ResourceT IO (Ptr C'_pulsar_client_configuration)
+mkClientConfiguration :: MonadIO m => ClientConfiguration -> ResourceT m (Ptr C'_pulsar_client_configuration)
 mkClientConfiguration ClientConfiguration {..} = do
   config <- new c'pulsar_client_configuration_create c'pulsar_client_configuration_free
   whenOptionRaw clientAuth $ \authConfig -> do

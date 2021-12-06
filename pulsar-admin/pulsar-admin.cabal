@@ -10,7 +10,7 @@ maintainer:          hey@hetchr.com
 copyright:           Hetchr - 2021
 category:            Web
 build-type:          Simple
-cabal-version:       >=1.18
+cabal-version:       1.18
 
 library
   hs-source-dirs:      src

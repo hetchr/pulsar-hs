@@ -34,7 +34,8 @@ module Pulsar.Client
     seekConsumer,
 
     -- * Message
-    Message (..),
+    BuiltMessage (..),
+    FetchedMessage (..),
     MessageBuilder (..),
     defaultMessageBuilder,
     buildMessage,
@@ -51,6 +52,7 @@ module Pulsar.Client
 
     -- * MessageId
     MessageId (..),
+    FetchedMessageId (..),
     messageIdEarliest,
     messageIdLatest,
     messageIdShow,
@@ -168,7 +170,7 @@ withReader configuration (TopicName topic) (MessageId startMessageId) onFailed f
         result <- liftIO $ c'pulsar_client_create_reader client topic' startMessageId ptrConfig ptrReader
         peekOn (isOk result) ptrReader (onFailed $ RawResult result) $ flip (withReader' . Reader) f
 
-consumeReader :: MonadUnliftIO m => ReaderConfiguration -> TopicName -> MessageId -> (RawResult -> m [a]) -> ReaderT Message m a -> ReaderT Client m [a]
+consumeReader :: MonadUnliftIO m => ReaderConfiguration -> TopicName -> MessageId -> (RawResult -> m [a]) -> ReaderT (FetchedMessage Reader) m a -> ReaderT Client m [a]
 consumeReader configuration (TopicName topic) (MessageId startMessageId) onFailed f = do
   Client client <- ask
   lift $

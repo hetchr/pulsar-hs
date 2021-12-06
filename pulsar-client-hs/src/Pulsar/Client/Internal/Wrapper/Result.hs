@@ -9,8 +9,7 @@ where
 
 import Foreign.C.String
 import Pulsar.Client.Internal.Foreign.Result
-
-newtype RawResult = RawResult {unRawResult :: C'pulsar_result}
+import Pulsar.Client.Internal.Wrapper.Pointers
 
 data Result
   = Ok

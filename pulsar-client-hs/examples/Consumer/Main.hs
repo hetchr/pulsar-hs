@@ -7,6 +7,7 @@ where
 
 import Control.Monad
 import Control.Monad.IO.Class
+import Control.Monad.Trans.Reader
 import qualified Data.ByteString.Char8 as B
 import Pulsar.Client
 
@@ -28,3 +29,4 @@ main =
           id' <- messageId messageIdShow
           content <- messageContent
           liftIO $ B.putStrLn $ "Message (" <> B.pack id' <> "): " <> content
+          void acknowledgeMessage

@@ -18,6 +18,9 @@ module Pulsar.Client.Internal.Wrapper.Utils
     MonadUnliftIO,
     ReaderT,
     ResourceT,
+    ReleaseKey,
+    MonadReader,
+    MonadResource,
     Ptr,
     module Reexport,
     M.Map,
@@ -28,14 +31,15 @@ module Pulsar.Client.Internal.Wrapper.Utils
     nullPtr,
     peekCString,
     withCString,
+    allocate,
   )
 where
 
 import Control.Exception
 import Control.Monad.IO.Class
-import Control.Monad.Trans.Class
-import Control.Monad.Trans.Reader
+import Control.Monad.Reader
 import Control.Monad.Trans.Resource hiding (liftResourceT)
+import qualified Control.Monad.Trans.Resource as T
 import Data.ByteString.Internal
 import Data.Foldable
 import Data.Int as Reexport
@@ -47,49 +51,49 @@ import GHC.Ptr
 import UnliftIO.Foreign hiding (new)
 import UnliftIO.Resource (liftResourceT)
 
-new :: MonadIO m => IO a -> (a -> IO ()) -> ResourceT m a
-new create delete = snd <$> liftResourceT (allocate create delete)
+new :: MonadResource m => IO a -> (a -> IO ()) -> m a
+new create delete = snd <$> T.liftResourceT (liftResourceT $ allocate create delete)
 {-# INLINE new #-}
 
-toCString :: MonadIO m => String -> ResourceT m CString
+toCString :: MonadResource m => String -> m CString
 toCString x = new (newCString x) free
 {-# INLINE toCString #-}
 
-whenOption :: MonadIO m => Maybe a -> (a -> IO ()) -> ResourceT m ()
+whenOption :: MonadResource m => Maybe a -> (a -> IO ()) -> m ()
 whenOption (Just x) f = liftIO $ f x
 whenOption Nothing _ = pure ()
 {-# INLINE whenOption #-}
 
-whenOptionByteString :: MonadIO m => Maybe ByteString -> (Ptr () -> CSize -> IO ()) -> ResourceT m ()
+whenOptionByteString :: MonadResource m => Maybe ByteString -> (Ptr () -> CSize -> IO ()) -> m ()
 whenOptionByteString (Just x) f =
   let (fPtr, start, size) = toForeignPtr x
    in liftIO $ assert (start == 0) $ withForeignPtr fPtr $ \ptr -> f (castPtr ptr) (fromIntegral size)
 whenOptionByteString Nothing _ = pure ()
 {-# INLINE whenOptionByteString #-}
 
-whenOptionString :: MonadIO m => Maybe String -> (CString -> IO ()) -> ResourceT m ()
+whenOptionString :: MonadResource m => Maybe String -> (CString -> IO ()) -> m ()
 whenOptionString (Just x) f = liftIO $ withCString x f
 whenOptionString Nothing _ = pure ()
 {-# INLINE whenOptionString #-}
 
-whenOptionStringTuple :: MonadIO m => Maybe (String, String) -> (CString -> CString -> IO ()) -> ResourceT m ()
+whenOptionStringTuple :: MonadResource m => Maybe (String, String) -> (CString -> CString -> IO ()) -> m ()
 whenOptionStringTuple (Just (x, y)) f = liftIO $ withCString x $ \x' -> withCString y $ \y' -> f x' y'
 whenOptionStringTuple Nothing _ = pure ()
 {-# INLINE whenOptionStringTuple #-}
 
-whenOptionStringList :: MonadIO m => [String] -> (Ptr CString -> CSize -> IO ()) -> ResourceT m ()
+whenOptionStringList :: MonadResource m => [String] -> (Ptr CString -> CSize -> IO ()) -> m ()
 whenOptionStringList xs f = liftIO $ do
   cs <- traverse newCString xs
   withArrayLen cs $ \len ptr -> f ptr (fromIntegral len)
   traverse_ free cs
 {-# INLINE whenOptionStringList #-}
 
-whenOptionRaw :: MonadIO m => Maybe a -> (a -> ResourceT IO ()) -> ResourceT m ()
-whenOptionRaw (Just x) f = liftResourceT $ f x
+whenOptionRaw :: MonadResource m => Maybe a -> (a -> ResourceT IO ()) -> m ()
+whenOptionRaw (Just x) f = T.liftResourceT $ liftResourceT $ f x
 whenOptionRaw Nothing _ = pure ()
 {-# INLINE whenOptionRaw #-}
 
-whenOptionMap :: MonadIO m => M.Map String String -> (CString -> CString -> IO ()) -> ResourceT m ()
+whenOptionMap :: MonadResource m => M.Map String String -> (CString -> CString -> IO ()) -> m ()
 whenOptionMap xs f = liftIO $ mapM_ (\(k, v) -> withCString k $ \k' -> withCString v $ \v' -> f k' v') $ M.toList xs
 {-# INLINE whenOptionMap #-}
 

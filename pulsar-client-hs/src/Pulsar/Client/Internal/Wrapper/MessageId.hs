@@ -1,5 +1,6 @@
 module Pulsar.Client.Internal.Wrapper.MessageId
   ( MessageId (..),
+    FetchedMessageId (..),
     messageIdEarliest,
     messageIdLatest,
     withMessageId,
@@ -10,19 +11,18 @@ where
 import Control.Exception
 import Foreign.Marshal.Alloc
 import Pulsar.Client.Internal.Foreign.MessageId
+import Pulsar.Client.Internal.Wrapper.Pointers
 import Pulsar.Client.Internal.Wrapper.Utils
 import System.IO.Unsafe
 
-newtype MessageId = MessageId {unMessageId :: Ptr C'_pulsar_message_id}
-
-withMessageId :: MonadIO m => MessageId -> ReaderT MessageId m a -> m a
+withMessageId :: MonadIO m => FetchedMessageId s -> ReaderT (FetchedMessageId s) m a -> m a
 withMessageId x f = do
   result <- runReaderT f x
-  liftIO $ c'pulsar_message_id_free $ unMessageId x
+  liftIO $ c'pulsar_message_id_free $ unMessageId $ unFetchedMessageId x
   return result
 
-messageIdShow :: MonadIO m => ReaderT MessageId m String
-messageIdShow = ask >>= \(MessageId x) -> liftIO $ bracket (c'pulsar_message_id_str x) free peekCString
+messageIdShow :: MonadIO m => ReaderT (FetchedMessageId s) m String
+messageIdShow = ask >>= \x -> liftIO $ bracket (c'pulsar_message_id_str $ unMessageId $ unFetchedMessageId x) free peekCString
 
 messageIdEarliest :: MessageId
 messageIdEarliest = unsafePerformIO $ MessageId <$> c'pulsar_message_id_earliest

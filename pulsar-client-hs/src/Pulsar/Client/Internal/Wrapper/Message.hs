@@ -1,7 +1,8 @@
 {-# LANGUAGE RecordWildCards #-}
 
 module Pulsar.Client.Internal.Wrapper.Message
-  ( Message (..),
+  ( BuiltMessage (..),
+    FetchedMessage (..),
     MessageBuilder (..),
     defaultMessageBuilder,
     buildMessage,
@@ -21,8 +22,6 @@ where
 
 import Control.DeepSeq (force)
 import Control.Exception (evaluate)
-import Control.Monad.Trans.Reader
-import Control.Monad.Trans.Resource
 import Data.ByteString
 import Data.ByteString.Builder (byteString, toLazyByteString)
 import Data.ByteString.Lazy (toStrict)
@@ -31,9 +30,8 @@ import Foreign.C.Types
 import GHC.Ptr
 import Pulsar.Client.Internal.Foreign.Message
 import Pulsar.Client.Internal.Wrapper.MessageId
+import Pulsar.Client.Internal.Wrapper.Pointers
 import Pulsar.Client.Internal.Wrapper.Utils
-
-newtype Message = Message {unMessage :: Ptr C'_pulsar_message}
 
 data MessageBuilder = MessageBuilder
   { content :: Maybe ByteString,
@@ -63,7 +61,7 @@ defaultMessageBuilder =
       disableReplication = Nothing
     }
 
-buildMessage :: MonadIO m => MessageBuilder -> ResourceT m (ReleaseKey, Message)
+buildMessage :: MonadIO m => MessageBuilder -> ResourceT m (ReleaseKey, BuiltMessage)
 buildMessage MessageBuilder {..} = do
   (release, config) <- allocate c'pulsar_message_create c'pulsar_message_free
   whenOptionByteString content $ c'pulsar_message_set_content config
@@ -76,26 +74,26 @@ buildMessage MessageBuilder {..} = do
   whenOption deliverAt $ c'pulsar_message_set_deliver_at config . CULong
   whenOptionStringList replicationClusters $ c'pulsar_message_set_replication_clusters config
   whenOption disableReplication $ c'pulsar_message_disable_replication config . fromBool
-  return (release, Message config)
+  return (release, BuiltMessage $ Message config)
 
-consumeMessage :: MonadIO m => Message -> ReaderT Message m a -> m a
+consumeMessage :: MonadIO m => FetchedMessage s -> ReaderT (FetchedMessage s) m a -> m a
 consumeMessage ptr r = do
   result <- runReaderT r ptr
-  liftIO $ c'pulsar_message_free $ unMessage ptr
+  liftIO $ c'pulsar_message_free $ unMessage $ unFetchedMessage ptr
   return result
 
-messageProperty :: MonadIO m => String -> ReaderT Message m (Maybe String)
+messageProperty :: MonadIO m => String -> ReaderT (FetchedMessage s) m (Maybe String)
 messageProperty key = do
   ptr <- ask
   liftIO $ do
-    str <- withCString key $ c'pulsar_message_get_property (unMessage ptr)
+    str <- withCString key $ c'pulsar_message_get_property (unMessage $ unFetchedMessage ptr)
     if str == nullPtr
       then return Nothing
       else Just <$> peekCString str
 
-messageContent :: MonadIO m => ReaderT Message m ByteString
+messageContent :: MonadIO m => ReaderT (FetchedMessage s) m ByteString
 messageContent = do
-  Message ptr <- ask
+  Message ptr <- unFetchedMessage <$> ask
   liftIO $ do
     Ptr addr <- c'pulsar_message_get_data ptr
     len <- c'pulsar_message_get_length ptr
@@ -103,29 +101,29 @@ messageContent = do
     evaluate $ force $ toStrict $ toLazyByteString $ byteString ptrBS
 {-# NOINLINE messageContent #-}
 
-messageId :: MonadIO m => ReaderT MessageId m a -> ReaderT Message m a
+messageId :: MonadIO m => ReaderT (FetchedMessageId s) m a -> ReaderT (FetchedMessage s) m a
 messageId f = do
-  Message message <- ask
-  idPtr <- MessageId <$> liftIO (c'pulsar_message_get_message_id message)
-  lift $ withMessageId idPtr f
+  message <- ask
+  idPtr <- MessageId <$> liftIO (c'pulsar_message_get_message_id $ unMessage $ unFetchedMessage message)
+  lift $ withMessageId (FetchedMessageId (fetchedMessageConsumer message) idPtr) f
 
-messagePartitionKey :: MonadIO m => ReaderT Message m String
-messagePartitionKey = ask >>= \x -> liftIO $ c'pulsar_message_get_partitionKey (unMessage x) >>= peekCString
+messagePartitionKey :: MonadIO m => ReaderT (FetchedMessage s) m String
+messagePartitionKey = ask >>= \x -> liftIO $ c'pulsar_message_get_partitionKey (unMessage $ unFetchedMessage x) >>= peekCString
 
-messageOrderingKey :: MonadIO m => ReaderT Message m String
-messageOrderingKey = ask >>= \x -> liftIO $ c'pulsar_message_get_orderingKey (unMessage x) >>= peekCString
+messageOrderingKey :: MonadIO m => ReaderT (FetchedMessage s) m String
+messageOrderingKey = ask >>= \x -> liftIO $ c'pulsar_message_get_orderingKey (unMessage $ unFetchedMessage x) >>= peekCString
 
-messagePublishTimestamp :: MonadIO m => ReaderT Message m Word64
-messagePublishTimestamp = ask >>= liftIO . fmap (\(CULong x) -> x) . c'pulsar_message_get_publish_timestamp . unMessage
+messagePublishTimestamp :: MonadIO m => ReaderT (FetchedMessage s) m Word64
+messagePublishTimestamp = ask >>= liftIO . fmap (\(CULong x) -> x) . c'pulsar_message_get_publish_timestamp . unMessage . unFetchedMessage
 
-messageEventTimestamp :: MonadIO m => ReaderT Message m Word64
-messageEventTimestamp = ask >>= liftIO . fmap (\(CULong x) -> x) . c'pulsar_message_get_event_timestamp . unMessage
+messageEventTimestamp :: MonadIO m => ReaderT (FetchedMessage s) m Word64
+messageEventTimestamp = ask >>= liftIO . fmap (\(CULong x) -> x) . c'pulsar_message_get_event_timestamp . unMessage . unFetchedMessage
 
-messageTopicName :: MonadIO m => ReaderT Message m String
-messageTopicName = ask >>= \x -> liftIO $ c'pulsar_message_get_topic_name (unMessage x) >>= peekCString
+messageTopicName :: MonadIO m => ReaderT (FetchedMessage s) m String
+messageTopicName = ask >>= \x -> liftIO $ c'pulsar_message_get_topic_name (unMessage $ unFetchedMessage x) >>= peekCString
 
-messageRedeliveryCount :: MonadIO m => ReaderT Message m Int32
-messageRedeliveryCount = ask >>= liftIO . fmap (\(CInt x) -> x) . c'pulsar_message_get_redelivery_count . unMessage
+messageRedeliveryCount :: MonadIO m => ReaderT (FetchedMessage s) m Int32
+messageRedeliveryCount = ask >>= liftIO . fmap (\(CInt x) -> x) . c'pulsar_message_get_redelivery_count . unMessage . unFetchedMessage
 
-messageSchemaVersion :: MonadIO m => ReaderT Message m String
-messageSchemaVersion = ask >>= \x -> liftIO $ c'pulsar_message_get_schemaVersion (unMessage x) >>= peekCString
+messageSchemaVersion :: MonadIO m => ReaderT (FetchedMessage s) m String
+messageSchemaVersion = ask >>= \x -> liftIO $ c'pulsar_message_get_schemaVersion (unMessage $ unFetchedMessage x) >>= peekCString

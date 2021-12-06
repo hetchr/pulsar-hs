@@ -28,7 +28,7 @@ defaultReaderConfiguration =
       readerReadCompacted = Nothing
     }
 
-mkReaderConfiguration :: MonadIO m => ReaderConfiguration -> ResourceT m (Ptr C'_pulsar_reader_configuration)
+mkReaderConfiguration :: MonadResource m => ReaderConfiguration -> m (Ptr C'_pulsar_reader_configuration)
 mkReaderConfiguration ReaderConfiguration {..} = do
   config <- new c'pulsar_reader_configuration_create c'pulsar_reader_configuration_free
   whenOption readerReceiverQueueSize $ c'pulsar_reader_configuration_set_receiver_queue_size config . CInt

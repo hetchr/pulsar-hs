@@ -15,6 +15,7 @@ module Pulsar.Client.Internal.Wrapper.Utils
     peekOn,
     -- Reexports
     MonadIO,
+    MonadTrans,
     MonadUnliftIO,
     ReaderT,
     ResourceT,

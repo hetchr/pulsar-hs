@@ -21,7 +21,7 @@ withMessageId x f = do
   liftIO $ c'pulsar_message_id_free $ unMessageId $ unFetchedMessageId x
   return result
 
-messageIdShow :: MonadIO m => ReaderT (FetchedMessageId s) m String
+messageIdShow :: (MonadIO m, MonadReader (FetchedMessageId s) m) => m String
 messageIdShow = ask >>= \x -> liftIO $ bracket (c'pulsar_message_id_str $ unMessageId $ unFetchedMessageId x) free peekCString
 
 messageIdEarliest :: MessageId

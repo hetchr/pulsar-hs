@@ -21,7 +21,7 @@ data AuthenticationConfig
   | Oauth2 {authParamsString :: String}
   deriving (Eq, Show)
 
-mkAuthentication :: AuthenticationConfig -> ResourceT IO (Ptr C'_pulsar_authentication)
+mkAuthentication :: MonadResource m => AuthenticationConfig -> m (Ptr C'_pulsar_authentication)
 mkAuthentication =
   \case
     Dynamic {..} -> do

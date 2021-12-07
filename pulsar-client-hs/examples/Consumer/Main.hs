@@ -20,9 +20,12 @@ onError action result =
     Just r -> putStrLn $ "Unable to " <> action <> " with error: " <> show r
     Nothing -> putStrLn $ "Unable to " <> action <> " with other error: " <> show (unRawResult result)
 
+logger :: LogLevel -> LogFile -> LogLine -> LogMessage -> IO ()
+logger level file line message = putStrLn $ "[" <> show level <> "] " <> file <> ":" <> show line <> ":" <> message
+
 main :: IO ()
 main =
-  withClient defaultClientConfiguration "pulsar://localhost:6650" $
+  withClient (defaultClientConfiguration {clientLogger = Just logger}) "pulsar://localhost:6650" $
     withConsumer defaultConsumerConfiguration "a-sub" (Topic topic) (onError "initiate") $
       forever $
         receiveMessage (onError "recieveMessage") $ do

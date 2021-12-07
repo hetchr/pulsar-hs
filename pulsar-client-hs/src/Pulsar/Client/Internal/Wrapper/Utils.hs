@@ -24,6 +24,7 @@ module Pulsar.Client.Internal.Wrapper.Utils
     MonadResource,
     Ptr,
     module Reexport,
+    CString,
     M.Map,
     liftIO,
     runReaderT,

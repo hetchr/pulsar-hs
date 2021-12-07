@@ -13,6 +13,10 @@ module Pulsar.Client
     -- * Client configuration
     ClientConfiguration (..),
     AuthenticationConfig (..),
+    LogLevel,
+    LogFile,
+    LogLine,
+    LogMessage,
     defaultClientConfiguration,
 
     -- * Consumer

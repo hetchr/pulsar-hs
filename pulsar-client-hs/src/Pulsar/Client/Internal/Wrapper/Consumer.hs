@@ -46,14 +46,14 @@ receiveMessage onFailed f = do
   consumer@(Consumer consumerPtr) <- ask
   withPtrPtr $ \msgPtr -> do
     result <- liftIO $ c'pulsar_consumer_receive consumerPtr msgPtr
-    peekOn (isOk result) msgPtr (onFailed $ RawResult result) $ flip (consumeMessage . FetchedMessage consumer . Message) f
+    peekOn (isOk $ RawResult result) msgPtr (onFailed $ RawResult result) $ flip (consumeMessage . FetchedMessage consumer . Message) f
 
 receiveMessageWithTimeout :: MonadUnliftIO m => Int32 -> (RawResult -> m a) -> ReaderT (FetchedMessage Consumer) m a -> ReaderT Consumer m a
 receiveMessageWithTimeout timeout onFailed f = do
   consumer@(Consumer consumerPtr) <- ask
   withPtrPtr $ \msgPtr -> do
     result <- liftIO $ c'pulsar_consumer_receive_with_timeout consumerPtr msgPtr $ CInt timeout
-    peekOn (isOk result) msgPtr (onFailed $ RawResult result) $ flip (consumeMessage . FetchedMessage consumer . Message) f
+    peekOn (isOk $ RawResult result) msgPtr (onFailed $ RawResult result) $ flip (consumeMessage . FetchedMessage consumer . Message) f
 
 acknowledgeMessage :: (MonadIO m, MonadReader (FetchedMessage Consumer) m) => m RawResult
 acknowledgeMessage = RawResult <$> addConsumerMessage c'pulsar_consumer_acknowledge

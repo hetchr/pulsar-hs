@@ -86,8 +86,8 @@ renderResult (RawResult x)
   | x == c'pulsar_result_CryptoError = Just CryptoError
   | otherwise = Nothing
 
-isOk :: C'pulsar_result -> Bool
-isOk = (== c'pulsar_result_Ok)
+isOk :: RawResult -> Bool
+isOk = (== c'pulsar_result_Ok) . unRawResult
 
 explainResult :: Result -> IO String
 explainResult x = c'pulsar_result_str result >>= peekCString

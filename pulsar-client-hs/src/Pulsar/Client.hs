@@ -150,7 +150,7 @@ withConsumer configuration subscriptionName topicsSelection onFailed f = do
           TopicsPattern topicsPattern -> toCString topicsPattern <&> \topicsPattern' -> c'pulsar_client_subscribe_pattern client topicsPattern' subscriptionName' ptrConfig
       withPtrPtr $ \ptrConsumer -> do
         result <- liftIO $ subscribe ptrConsumer
-        peekOn (isOk result) ptrConsumer (onFailed $ RawResult result) $ flip (withConsumer' . Consumer) f
+        peekOn (isOk $ RawResult result) ptrConsumer (onFailed $ RawResult result) $ flip (withConsumer' . Consumer) f
 
 withProducer :: MonadUnliftIO m => ProducerConfiguration -> TopicName -> (RawResult -> m a) -> ReaderT Producer m a -> ReaderT Client m a
 withProducer configuration (TopicName topic) onFailed f = do
@@ -161,7 +161,7 @@ withProducer configuration (TopicName topic) onFailed f = do
       ptrConfig <- mkProducerConfiguration configuration
       withPtrPtr $ \ptrProducer -> do
         result <- liftIO $ c'pulsar_client_create_producer client topic' ptrConfig ptrProducer
-        peekOn (isOk result) ptrProducer (onFailed $ RawResult result) $ flip (withProducer' . Producer) f
+        peekOn (isOk $ RawResult result) ptrProducer (onFailed $ RawResult result) $ flip (withProducer' . Producer) f
 
 withReader :: MonadUnliftIO m => ReaderConfiguration -> TopicName -> MessageId -> (RawResult -> m a) -> ReaderT Reader m a -> ReaderT Client m a
 withReader configuration (TopicName topic) (MessageId startMessageId) onFailed f = do
@@ -172,7 +172,7 @@ withReader configuration (TopicName topic) (MessageId startMessageId) onFailed f
       ptrConfig <- mkReaderConfiguration configuration
       withPtrPtr $ \ptrReader -> do
         result <- liftIO $ c'pulsar_client_create_reader client topic' startMessageId ptrConfig ptrReader
-        peekOn (isOk result) ptrReader (onFailed $ RawResult result) $ flip (withReader' . Reader) f
+        peekOn (isOk $ RawResult result) ptrReader (onFailed $ RawResult result) $ flip (withReader' . Reader) f
 
 consumeReader :: MonadUnliftIO m => ReaderConfiguration -> TopicName -> MessageId -> (RawResult -> m [a]) -> ReaderT (FetchedMessage Reader) m a -> ReaderT Client m [a]
 consumeReader configuration (TopicName topic) (MessageId startMessageId) onFailed f = do
@@ -183,4 +183,4 @@ consumeReader configuration (TopicName topic) (MessageId startMessageId) onFaile
       ptrConfig <- mkReaderConfiguration configuration
       withPtrPtr $ \ptrReader -> do
         result <- liftIO $ c'pulsar_client_create_reader client topic' startMessageId ptrConfig ptrReader
-        peekOn (isOk result) ptrReader (onFailed $ RawResult result) $ flip (consumeReader' . Reader) f
+        peekOn (isOk $ RawResult result) ptrReader (onFailed $ RawResult result) $ flip (consumeReader' . Reader) f

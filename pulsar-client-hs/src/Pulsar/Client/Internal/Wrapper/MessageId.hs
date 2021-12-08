@@ -16,18 +16,15 @@ import Pulsar.Client.Internal.Wrapper.Utils
 import System.IO.Unsafe
 
 withMessageId :: MonadIO m => FetchedMessageId s -> ReaderT (FetchedMessageId s) m a -> m a
-withMessageId x f = do
-  result <- runReaderT f x
-  liftIO $ c'pulsar_message_id_free $ unMessageId $ unFetchedMessageId x
-  return result
+withMessageId x f = undefined
 
 messageIdShow :: (MonadIO m, MonadReader (FetchedMessageId s) m) => m String
-messageIdShow = ask >>= \x -> liftIO $ bracket (c'pulsar_message_id_str $ unMessageId $ unFetchedMessageId x) free peekCString
+messageIdShow = undefined
 
 messageIdEarliest :: MessageId
-messageIdEarliest = unsafePerformIO $ MessageId <$> c'pulsar_message_id_earliest
+messageIdEarliest = undefined
 {-# NOINLINE messageIdEarliest #-}
 
 messageIdLatest :: MessageId
-messageIdLatest = unsafePerformIO $ MessageId <$> c'pulsar_message_id_latest
+messageIdLatest = undefined
 {-# NOINLINE messageIdLatest #-}

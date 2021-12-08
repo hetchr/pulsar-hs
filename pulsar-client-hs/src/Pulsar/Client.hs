@@ -117,10 +117,10 @@ withClient :: MonadUnliftIO m => ClientConfiguration -> String -> ReaderT Client
 withClient configuration serviceUrl f = runResourceT $ do
   ptrConfig <- mkClientConfiguration configuration
   serviceUrl' <- toCString serviceUrl
-  client <- liftIO $ c'pulsar_client_create serviceUrl' ptrConfig
+  client <- liftIO $ undefined serviceUrl' ptrConfig
   result <- lift $ runReaderT f $ Client client
-  liftIO $ c'pulsar_client_close client
-  liftIO $ c'pulsar_client_free client
+  liftIO $ undefined client
+  liftIO $ undefined client
   return result
 
 data TopicsSelection
@@ -141,12 +141,12 @@ withConsumer configuration subscriptionName topicsSelection onFailed f = do
       ptrConfig <- mkConsumerConfiguration configuration
       subscribe <-
         case topicsSelection of
-          Topic (TopicName topic) -> toCString topic <&> \topic' -> c'pulsar_client_subscribe client topic' subscriptionName' ptrConfig
+          Topic (TopicName topic) -> toCString topic <&> \topiundefined -> undefined client topiundefined subscriptionName' ptrConfig
           Topics topics -> do
             topics' <- mapM (toCString . topicName) topics
             ptrTopics <- new (newArray topics') free
-            return $ c'pulsar_client_subscribe_multi_topics client ptrTopics (fromIntegral $ length topics) subscriptionName' ptrConfig
-          TopicsPattern topicsPattern -> toCString topicsPattern <&> \topicsPattern' -> c'pulsar_client_subscribe_pattern client topicsPattern' subscriptionName' ptrConfig
+            return $ undefined client ptrTopics (fromIntegral $ length topics) subscriptionName' ptrConfig
+          TopicsPattern topicsPattern -> toCString topicsPattern <&> \topicsPattern' -> undefined client topicsPattern' subscriptionName' ptrConfig
       withPtrPtr $ \ptrConsumer -> do
         result <- liftIO $ subscribe ptrConsumer
         peekOn (isOk $ RawResult result) ptrConsumer (onFailed $ RawResult result) $ flip (withConsumer' . Consumer) f
@@ -159,7 +159,7 @@ withProducer configuration (TopicName topic) onFailed f = do
       topic' <- toCString topic
       ptrConfig <- mkProducerConfiguration configuration
       withPtrPtr $ \ptrProducer -> do
-        result <- liftIO $ c'pulsar_client_create_producer client topic' ptrConfig ptrProducer
+        result <- liftIO $ undefined client topic' ptrConfig ptrProducer
         peekOn (isOk $ RawResult result) ptrProducer (onFailed $ RawResult result) $ flip (withProducer' . Producer) f
 
 withReader :: MonadUnliftIO m => ReaderConfiguration -> TopicName -> MessageId -> (RawResult -> m a) -> ReaderT Reader m a -> ReaderT Client m a
@@ -170,7 +170,7 @@ withReader configuration (TopicName topic) (MessageId startMessageId) onFailed f
       topic' <- toCString topic
       ptrConfig <- mkReaderConfiguration configuration
       withPtrPtr $ \ptrReader -> do
-        result <- liftIO $ c'pulsar_client_create_reader client topic' startMessageId ptrConfig ptrReader
+        result <- liftIO $ undefined client topic' startMessageId ptrConfig ptrReader
         peekOn (isOk $ RawResult result) ptrReader (onFailed $ RawResult result) $ flip (withReader' . Reader) f
 
 consumeReader :: MonadUnliftIO m => ReaderConfiguration -> TopicName -> MessageId -> (RawResult -> m [a]) -> ReaderT (FetchedMessage Reader) m a -> ReaderT Client m [a]
@@ -181,5 +181,5 @@ consumeReader configuration (TopicName topic) (MessageId startMessageId) onFaile
       topic' <- toCString topic
       ptrConfig <- mkReaderConfiguration configuration
       withPtrPtr $ \ptrReader -> do
-        result <- liftIO $ c'pulsar_client_create_reader client topic' startMessageId ptrConfig ptrReader
+        result <- liftIO $ undefined client topic' startMessageId ptrConfig ptrReader
         peekOn (isOk $ RawResult result) ptrReader (onFailed $ RawResult result) $ flip (consumeReader' . Reader) f

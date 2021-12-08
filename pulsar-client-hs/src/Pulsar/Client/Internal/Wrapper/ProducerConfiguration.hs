@@ -103,75 +103,56 @@ defaultProducerConfiguration =
     }
 
 mkProducerConfiguration :: MonadResource m => ProducerConfiguration -> m (Ptr C'_pulsar_producer_configuration)
-mkProducerConfiguration ProducerConfiguration {..} = do
-  config <- new c'pulsar_producer_configuration_create c'pulsar_producer_configuration_free
-  whenOptionString producerName $ c'pulsar_producer_configuration_set_producer_name config
-  whenOption producerSendTimeout $ c'pulsar_producer_configuration_set_send_timeout config . CInt
-  whenOption producerInitialSequenceId $ c'pulsar_producer_configuration_set_initial_sequence_id config . CLong
-  whenOption producerCompressionType $ c'pulsar_producer_configuration_set_compression_type config . nativeCompressionType
-  whenOption producerMaxPendingMessages $ c'pulsar_producer_configuration_set_max_pending_messages config . CInt
-  whenOption producerMaxPendingMessagesAcrossPartitions $ c'pulsar_producer_configuration_set_max_pending_messages_across_partitions config . CInt
-  whenOption producerPartitionsRoutingMode $ c'pulsar_producer_configuration_set_partitions_routing_mode config . nativePartitionsRoutingMode
-  whenOption producerHashingScheme $ c'pulsar_producer_configuration_set_hashing_scheme config . nativeHashingScheme
-  whenOption producerBlockIfQueueFull $ c'pulsar_producer_configuration_set_block_if_queue_full config . CInt
-  whenOption producerBatchingEnabled $ c'pulsar_producer_configuration_set_batching_enabled config . CInt
-  whenOption producerBatchingMaxMessages $ c'pulsar_producer_configuration_set_batching_max_messages config . CUInt
-  whenOption producerBatchingMaxAllowedSizeInBytes $ c'pulsar_producer_configuration_set_batching_max_allowed_size_in_bytes config . CULong
-  whenOption producerBatchingMaxPublishDelayMs $ c'pulsar_producer_configuration_set_batching_max_publish_delay_ms config . CULong
-  whenOptionMap producerProperties $ c'pulsar_producer_configuration_set_property config
-  whenOptionStringTuple producerDefaultCryptoKeyReader $ c'pulsar_producer_configuration_set_default_crypto_key_reader config
-  whenOption producerCryptoFailureAction $ c'pulsar_producer_configuration_set_crypto_failure_action config . nativeCryptoFailureAction
-  whenOptionString producerEncryptionKey $ c'pulsar_producer_configuration_set_encryption_key config
-  return config
+mkProducerConfiguration ProducerConfiguration {..} = undefined
 
 nativePartitionsRoutingMode :: PartitionsRoutingMode -> C'pulsar_partitions_routing_mode
 nativePartitionsRoutingMode =
   \case
-    UseSinglePartition -> c'pulsar_UseSinglePartition
-    RoundRobinDistribution -> c'pulsar_RoundRobinDistribution
-    CustomPartition -> c'pulsar_CustomPartition
+    UseSinglePartition -> undefined
+    RoundRobinDistribution -> undefined
+    CustomPartition -> undefined
 
 nativeHashingScheme :: HashingScheme -> C'pulsar_hashing_scheme
 nativeHashingScheme =
   \case
-    Murmur3_32Hash -> c'pulsar_Murmur3_32Hash
-    BoostHash -> c'pulsar_BoostHash
-    JavaStringHash -> c'pulsar_JavaStringHash
+    Murmur3_32Hash -> undefined
+    BoostHash -> undefined
+    JavaStringHash -> undefined
 
 nativeCompressionType :: CompressionType -> C'pulsar_compression_type
 nativeCompressionType =
   \case
-    CompressionNone -> c'pulsar_CompressionNone
-    CompressionLZ4 -> c'pulsar_CompressionLZ4
-    CompressionZLib -> c'pulsar_CompressionZLib
-    CompressionZSTD -> c'pulsar_CompressionZSTD
-    CompressionSNAPPY -> c'pulsar_CompressionSNAPPY
+    CompressionNone -> undefined
+    CompressionLZ4 -> undefined
+    CompressionZLib -> undefined
+    CompressionZSTD -> undefined
+    CompressionSNAPPY -> undefined
 
 -- nativeSchemaType :: SchemaType -> C'pulsar_schema_type
 -- nativeSchemaType =
 --   \case
---     SchemaNone -> c'pulsar_None
---     SchemaString -> c'pulsar_String
---     SchemaJson -> c'pulsar_Json
---     SchemaProtobuf -> c'pulsar_Protobuf
---     SchemaAvro -> c'pulsar_Avro
---     SchemaBoolean -> c'pulsar_Boolean
---     SchemaInt8 -> c'pulsar_Int8
---     SchemaInt16 -> c'pulsar_Int16
---     SchemaInt32 -> c'pulsar_Int32
---     SchemaInt64 -> c'pulsar_Int64
---     SchemaFloat32 -> c'pulsar_Float32
---     SchemaFloat64 -> c'pulsar_Float64
---     SchemaKeyValue -> c'pulsar_KeyValue
---     SchemaBytes -> c'pulsar_Bytes
---     SchemaAutoConsume -> c'pulsar_AutoConsume
---     SchemaAutoPublish -> c'pulsar_AutoPublish
+--     SchemaNone -> undefined
+--     SchemaString -> undefined
+--     SchemaJson -> undefined
+--     SchemaProtobuf -> undefined
+--     SchemaAvro -> undefined
+--     SchemaBoolean -> undefined
+--     SchemaInt8 -> undefined
+--     SchemaInt16 -> undefined
+--     SchemaInt32 -> undefined
+--     SchemaInt64 -> undefined
+--     SchemaFloat32 -> undefined
+--     SchemaFloat64 -> undefined
+--     SchemaKeyValue -> undefined
+--     SchemaBytes -> undefined
+--     SchemaAutoConsume -> undefined
+--     SchemaAutoPublish -> undefined
 
 nativeCryptoFailureAction :: CryptoFailureAction -> C'pulsar_producer_crypto_failure_action
 nativeCryptoFailureAction =
   \case
-    ProducerFail -> c'pulsar_ProducerFail
-    ProducerSend -> c'pulsar_ProducerSend
+    ProducerFail -> undefined
+    ProducerSend -> undefined
 
--- c'pulsar_producer_configuration_set_schema_info config . C'pulsar_schema_type -> CString -> CString -> Ptr Pulsar.Client.Internal.Foreign.StringMap.C'_pulsar_string_map
--- c'pulsar_producer_configuration_set_message_router config . Pulsar.Client.Internal.Foreign.MessageRouter.C'pulsar_message_router -> Ptr ()
+-- undefined config . C'pulsar_schema_type -> CString -> CString -> Ptr Pulsar.Client.Internal.Foreign.StringMap.C'_pulsar_string_map
+-- undefined config . Pulsar.Client.Internal.Foreign.MessageRouter.C'pulsar_message_router -> Ptr ()

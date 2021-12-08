@@ -76,4 +76,3 @@ import Foreign.Ptr
 #num pulsar_result_UnsupportedVersionError
 #num pulsar_result_TopicTerminated
 #num pulsar_result_CryptoError
-#ccall pulsar_result_str , <pulsar_result> -> IO CString

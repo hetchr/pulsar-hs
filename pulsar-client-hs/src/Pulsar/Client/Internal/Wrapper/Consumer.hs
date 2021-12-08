@@ -24,57 +24,40 @@ import Pulsar.Client.Internal.Wrapper.Result
 import Pulsar.Client.Internal.Wrapper.Utils
 
 withConsumer' :: MonadIO m => Consumer -> ReaderT Consumer m a -> m a
-withConsumer' consumer@(Consumer ptrConsumer) f = do
-  result <- runReaderT f consumer
-  liftIO $ c'pulsar_consumer_unsubscribe ptrConsumer
-  liftIO $ c'pulsar_consumer_close ptrConsumer
-  liftIO $ c'pulsar_consumer_free ptrConsumer
-  return result
+withConsumer' consumer@(Consumer ptrConsumer) f = undefined
 
 addConsumerMessage :: (MonadIO m, MonadReader (FetchedMessage Consumer) m) => (Ptr C'pulsar_consumer_t -> Ptr C'pulsar_message_t -> IO a) -> m a
-addConsumerMessage f = do
-  message <- ask
-  liftIO $ f (unConsumer $ fetchedMessageConsumer message) (unMessage $ unFetchedMessage message)
+addConsumerMessage f = undefined
 
 addConsumerMessageId :: (MonadIO m, MonadReader (FetchedMessageId Consumer) m) => (Ptr C'pulsar_consumer_t -> Ptr C'pulsar_message_id_t -> IO a) -> m a
-addConsumerMessageId f = do
-  message <- ask
-  liftIO $ f (unConsumer $ fetchedMessageIdConsumer message) (unMessageId $ unFetchedMessageId message)
+addConsumerMessageId f = undefined
 
 receiveMessage :: MonadUnliftIO m => (RawResult -> m a) -> ReaderT (FetchedMessage Consumer) m a -> ReaderT Consumer m a
-receiveMessage onFailed f = do
-  consumer@(Consumer consumerPtr) <- ask
-  withPtrPtr $ \msgPtr -> do
-    result <- liftIO $ c'pulsar_consumer_receive consumerPtr msgPtr
-    peekOn (isOk $ RawResult result) msgPtr (onFailed $ RawResult result) $ flip (consumeMessage . FetchedMessage consumer . Message) f
+receiveMessage onFailed f = undefined
 
 receiveMessageWithTimeout :: MonadUnliftIO m => Int32 -> (RawResult -> m a) -> ReaderT (FetchedMessage Consumer) m a -> ReaderT Consumer m a
-receiveMessageWithTimeout timeout onFailed f = do
-  consumer@(Consumer consumerPtr) <- ask
-  withPtrPtr $ \msgPtr -> do
-    result <- liftIO $ c'pulsar_consumer_receive_with_timeout consumerPtr msgPtr $ CInt timeout
-    peekOn (isOk $ RawResult result) msgPtr (onFailed $ RawResult result) $ flip (consumeMessage . FetchedMessage consumer . Message) f
+receiveMessageWithTimeout timeout onFailed f = undefined
 
 acknowledgeMessage :: (MonadIO m, MonadReader (FetchedMessage Consumer) m) => m RawResult
-acknowledgeMessage = RawResult <$> addConsumerMessage c'pulsar_consumer_acknowledge
+acknowledgeMessage = undefined
 
 acknowledgeMessageId :: (MonadIO m, MonadReader (FetchedMessageId Consumer) m) => m RawResult
-acknowledgeMessageId = RawResult <$> addConsumerMessageId c'pulsar_consumer_acknowledge_id
+acknowledgeMessageId = undefined
 
 acknowledgeCumulativeMessage :: (MonadIO m, MonadReader (FetchedMessage Consumer) m) => m RawResult
-acknowledgeCumulativeMessage = RawResult <$> addConsumerMessage c'pulsar_consumer_acknowledge_cumulative
+acknowledgeCumulativeMessage = undefined
 
 acknowledgeCumulativeMessageId :: (MonadIO m, MonadReader (FetchedMessageId Consumer) m) => m RawResult
-acknowledgeCumulativeMessageId = RawResult <$> addConsumerMessageId c'pulsar_consumer_acknowledge_cumulative_id
+acknowledgeCumulativeMessageId = undefined
 
 acknowledgeNegativeMessage :: (MonadIO m, MonadReader (FetchedMessage Consumer) m) => m ()
-acknowledgeNegativeMessage = addConsumerMessage c'pulsar_consumer_negative_acknowledge
+acknowledgeNegativeMessage = undefined
 
 acknowledgeNegativeMessageId :: (MonadIO m, MonadReader (FetchedMessageId Consumer) m) => m ()
-acknowledgeNegativeMessageId = addConsumerMessageId c'pulsar_consumer_negative_acknowledge_id
+acknowledgeNegativeMessageId = undefined
 
 redeliverUnacknowledgeMessages :: (MonadIO m, MonadReader Consumer m) => m ()
-redeliverUnacknowledgeMessages = ask >>= liftIO . c'pulsar_consumer_redeliver_unacknowledged_messages . unConsumer
+redeliverUnacknowledgeMessages = undefined
 
 seekConsumer :: (MonadIO m, MonadReader (FetchedMessageId Consumer) m) => m RawResult
-seekConsumer = RawResult <$> addConsumerMessageId c'pulsar_consumer_seek
+seekConsumer = undefined

@@ -29,10 +29,4 @@ defaultReaderConfiguration =
     }
 
 mkReaderConfiguration :: MonadResource m => ReaderConfiguration -> m (Ptr C'_pulsar_reader_configuration)
-mkReaderConfiguration ReaderConfiguration {..} = do
-  config <- new c'pulsar_reader_configuration_create c'pulsar_reader_configuration_free
-  whenOption readerReceiverQueueSize $ c'pulsar_reader_configuration_set_receiver_queue_size config . CInt
-  whenOptionString readerName $ c'pulsar_reader_configuration_set_reader_name config
-  whenOptionString readerSubscriptionRolePrefix $ c'pulsar_reader_configuration_set_subscription_role_prefix config
-  whenOption readerReadCompacted $ c'pulsar_reader_configuration_set_read_compacted config . CInt
-  return config
+mkReaderConfiguration ReaderConfiguration {..} = undefined

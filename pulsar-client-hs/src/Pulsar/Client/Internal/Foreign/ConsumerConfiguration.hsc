@@ -36,34 +36,3 @@ import Pulsar.Client.Internal.Foreign.StringMap
 #num pulsar_ConsumerFail
 #num pulsar_ConsumerDiscard
 #num pulsar_ConsumerConsume
-#callback pulsar_message_listener , Ptr <struct _pulsar_consumer> -> Ptr <struct _pulsar_message> -> Ptr () -> IO ()
-#ccall pulsar_consumer_configuration_create , IO (Ptr <struct _pulsar_consumer_configuration>)
-#ccall pulsar_consumer_configuration_free , Ptr <struct _pulsar_consumer_configuration> -> IO ()
-#ccall pulsar_consumer_configuration_set_consumer_type , Ptr <struct _pulsar_consumer_configuration> -> <pulsar_consumer_type> -> IO ()
-#ccall pulsar_consumer_configuration_get_consumer_type , Ptr <struct _pulsar_consumer_configuration> -> IO <pulsar_consumer_type>
-#ccall pulsar_consumer_configuration_set_schema_info , Ptr <struct _pulsar_consumer_configuration> -> <pulsar_schema_type> -> CString -> CString -> Ptr <struct _pulsar_string_map> -> IO ()
-#ccall pulsar_consumer_configuration_set_message_listener , Ptr <struct _pulsar_consumer_configuration> -> <pulsar_message_listener> -> Ptr () -> IO ()
-#ccall pulsar_consumer_configuration_has_message_listener , Ptr <struct _pulsar_consumer_configuration> -> IO CInt
-#ccall pulsar_consumer_configuration_set_receiver_queue_size , Ptr <struct _pulsar_consumer_configuration> -> CInt -> IO ()
-#ccall pulsar_consumer_configuration_get_receiver_queue_size , Ptr <struct _pulsar_consumer_configuration> -> IO CInt
-#ccall pulsar_consumer_set_max_total_receiver_queue_size_across_partitions , Ptr <struct _pulsar_consumer_configuration> -> CInt -> IO ()
-#ccall pulsar_consumer_get_max_total_receiver_queue_size_across_partitions , Ptr <struct _pulsar_consumer_configuration> -> IO CInt
-#ccall pulsar_consumer_set_consumer_name , Ptr <struct _pulsar_consumer_configuration> -> CString -> IO ()
-#ccall pulsar_consumer_get_consumer_name , Ptr <struct _pulsar_consumer_configuration> -> IO CString
-#ccall pulsar_consumer_set_unacked_messages_timeout_ms , Ptr <struct _pulsar_consumer_configuration> -> CULong -> IO ()
-#ccall pulsar_consumer_get_unacked_messages_timeout_ms , Ptr <struct _pulsar_consumer_configuration> -> IO CLong
-#ccall pulsar_configure_set_negative_ack_redelivery_delay_ms , Ptr <struct _pulsar_consumer_configuration> -> CLong -> IO ()
-#ccall pulsar_configure_get_negative_ack_redelivery_delay_ms , Ptr <struct _pulsar_consumer_configuration> -> IO CLong
-#ccall pulsar_configure_set_ack_grouping_time_ms , Ptr <struct _pulsar_consumer_configuration> -> CLong -> IO ()
-#ccall pulsar_configure_get_ack_grouping_time_ms , Ptr <struct _pulsar_consumer_configuration> -> IO CLong
-#ccall pulsar_configure_set_ack_grouping_max_size , Ptr <struct _pulsar_consumer_configuration> -> CLong -> IO ()
-#ccall pulsar_configure_get_ack_grouping_max_size , Ptr <struct _pulsar_consumer_configuration> -> IO CLong
-#ccall pulsar_consumer_is_encryption_enabled , Ptr <struct _pulsar_consumer_configuration> -> IO CInt
-#ccall pulsar_consumer_configuration_set_default_crypto_key_reader , Ptr <struct _pulsar_consumer_configuration> -> CString -> CString -> IO ()
-#ccall pulsar_consumer_configuration_get_crypto_failure_action , Ptr <struct _pulsar_consumer_configuration> -> IO <pulsar_consumer_crypto_failure_action>
-#ccall pulsar_consumer_configuration_set_crypto_failure_action , Ptr <struct _pulsar_consumer_configuration> -> <pulsar_consumer_crypto_failure_action> -> IO ()
-#ccall pulsar_consumer_is_read_compacted , Ptr <struct _pulsar_consumer_configuration> -> IO CInt
-#ccall pulsar_consumer_set_read_compacted , Ptr <struct _pulsar_consumer_configuration> -> CInt -> IO ()
-#ccall pulsar_consumer_get_subscription_initial_position , Ptr <struct _pulsar_consumer_configuration> -> IO CInt
-#ccall pulsar_consumer_set_subscription_initial_position , Ptr <struct _pulsar_consumer_configuration> -> <initial_position> -> IO ()
-#ccall pulsar_consumer_configuration_set_property , Ptr <struct _pulsar_consumer_configuration> -> CString -> CString -> IO ()

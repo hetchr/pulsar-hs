@@ -83,39 +83,3 @@ import Pulsar.Client.Internal.Foreign.StringMap
 {- typedef struct _pulsar_crypto_key_reader pulsar_crypto_key_reader; -}
 #opaque_t struct _pulsar_crypto_key_reader
 #synonym_t pulsar_crypto_key_reader , <struct _pulsar_crypto_key_reader>
-#ccall pulsar_producer_configuration_create , IO (Ptr <struct _pulsar_producer_configuration>)
-#ccall pulsar_producer_configuration_free , Ptr <struct _pulsar_producer_configuration> -> IO ()
-#ccall pulsar_producer_configuration_set_producer_name , Ptr <struct _pulsar_producer_configuration> -> CString -> IO ()
-#ccall pulsar_producer_configuration_get_producer_name , Ptr <struct _pulsar_producer_configuration> -> IO CString
-#ccall pulsar_producer_configuration_set_send_timeout , Ptr <struct _pulsar_producer_configuration> -> CInt -> IO ()
-#ccall pulsar_producer_configuration_get_send_timeout , Ptr <struct _pulsar_producer_configuration> -> IO CInt
-#ccall pulsar_producer_configuration_set_initial_sequence_id , Ptr <struct _pulsar_producer_configuration> -> CLong -> IO ()
-#ccall pulsar_producer_configuration_get_initial_sequence_id , Ptr <struct _pulsar_producer_configuration> -> IO CLong
-#ccall pulsar_producer_configuration_set_compression_type , Ptr <struct _pulsar_producer_configuration> -> <pulsar_compression_type> -> IO ()
-#ccall pulsar_producer_configuration_get_compression_type , Ptr <struct _pulsar_producer_configuration> -> IO <pulsar_compression_type>
-#ccall pulsar_producer_configuration_set_schema_info , Ptr <struct _pulsar_producer_configuration> -> <pulsar_schema_type> -> CString -> CString -> Ptr <struct _pulsar_string_map> -> IO ()
-#ccall pulsar_producer_configuration_set_max_pending_messages , Ptr <struct _pulsar_producer_configuration> -> CInt -> IO ()
-#ccall pulsar_producer_configuration_get_max_pending_messages , Ptr <struct _pulsar_producer_configuration> -> IO CInt
-#ccall pulsar_producer_configuration_set_max_pending_messages_across_partitions , Ptr <struct _pulsar_producer_configuration> -> CInt -> IO ()
-#ccall pulsar_producer_configuration_get_max_pending_messages_across_partitions , Ptr <struct _pulsar_producer_configuration> -> IO CInt
-#ccall pulsar_producer_configuration_set_partitions_routing_mode , Ptr <struct _pulsar_producer_configuration> -> <pulsar_partitions_routing_mode> -> IO ()
-#ccall pulsar_producer_configuration_get_partitions_routing_mode , Ptr <struct _pulsar_producer_configuration> -> IO <pulsar_partitions_routing_mode>
-#ccall pulsar_producer_configuration_set_message_router , Ptr <struct _pulsar_producer_configuration> -> <pulsar_message_router> -> Ptr () -> IO ()
-#ccall pulsar_producer_configuration_set_hashing_scheme , Ptr <struct _pulsar_producer_configuration> -> <pulsar_hashing_scheme> -> IO ()
-#ccall pulsar_producer_configuration_get_hashing_scheme , Ptr <struct _pulsar_producer_configuration> -> IO <pulsar_hashing_scheme>
-#ccall pulsar_producer_configuration_set_block_if_queue_full , Ptr <struct _pulsar_producer_configuration> -> CInt -> IO ()
-#ccall pulsar_producer_configuration_get_block_if_queue_full , Ptr <struct _pulsar_producer_configuration> -> IO CInt
-#ccall pulsar_producer_configuration_set_batching_enabled , Ptr <struct _pulsar_producer_configuration> -> CInt -> IO ()
-#ccall pulsar_producer_configuration_get_batching_enabled , Ptr <struct _pulsar_producer_configuration> -> IO CInt
-#ccall pulsar_producer_configuration_set_batching_max_messages , Ptr <struct _pulsar_producer_configuration> -> CUInt -> IO ()
-#ccall pulsar_producer_configuration_get_batching_max_messages , Ptr <struct _pulsar_producer_configuration> -> IO CUInt
-#ccall pulsar_producer_configuration_set_batching_max_allowed_size_in_bytes , Ptr <struct _pulsar_producer_configuration> -> CULong -> IO ()
-#ccall pulsar_producer_configuration_get_batching_max_allowed_size_in_bytes , Ptr <struct _pulsar_producer_configuration> -> IO CULong
-#ccall pulsar_producer_configuration_set_batching_max_publish_delay_ms , Ptr <struct _pulsar_producer_configuration> -> CULong -> IO ()
-#ccall pulsar_producer_configuration_get_batching_max_publish_delay_ms , Ptr <struct _pulsar_producer_configuration> -> IO CULong
-#ccall pulsar_producer_configuration_set_property , Ptr <struct _pulsar_producer_configuration> -> CString -> CString -> IO ()
-#ccall pulsar_producer_is_encryption_enabled , Ptr <struct _pulsar_producer_configuration> -> IO CInt
-#ccall pulsar_producer_configuration_set_default_crypto_key_reader , Ptr <struct _pulsar_producer_configuration> -> CString -> CString -> IO ()
-#ccall pulsar_producer_configuration_get_crypto_failure_action , Ptr <struct _pulsar_producer_configuration> -> IO <pulsar_producer_crypto_failure_action>
-#ccall pulsar_producer_configuration_set_crypto_failure_action , Ptr <struct _pulsar_producer_configuration> -> <pulsar_producer_crypto_failure_action> -> IO ()
-#ccall pulsar_producer_configuration_set_encryption_key , Ptr <struct _pulsar_producer_configuration> -> CString -> IO ()

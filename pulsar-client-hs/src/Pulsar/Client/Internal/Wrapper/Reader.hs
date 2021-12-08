@@ -17,35 +17,16 @@ import Pulsar.Client.Internal.Wrapper.Result
 import Pulsar.Client.Internal.Wrapper.Utils
 
 withReader' :: MonadIO m => Reader -> ReaderT Reader m a -> m a
-withReader' reader@(Reader ptrReader) f = do
-  result <- runReaderT f reader
-  liftIO $ c'pulsar_reader_close ptrReader
-  liftIO $ c'pulsar_reader_free ptrReader
-  return result
+withReader' reader@(Reader ptrReader) f = undefined
 
 consumeReader' :: MonadUnliftIO m => Reader -> ReaderT (FetchedMessage Reader) m a -> m [a]
-consumeReader' reader f =
-  fmap join $
-    withReader' reader $
-      untilM readerHasNextMessage $ readerNextMessage (const $ return []) $ fmap return f
+consumeReader' reader f = undefined
 
 readerNextMessage :: MonadUnliftIO m => (C'pulsar_result -> m a) -> ReaderT (FetchedMessage Reader) m a -> ReaderT Reader m a
-readerNextMessage onFailed f = do
-  Reader reader <- ask
-  withPtrPtr $ \msgPtr -> do
-    result <- liftIO $ c'pulsar_reader_read_next reader msgPtr
-    peekOn (isOk $ RawResult result) msgPtr (onFailed result) $ flip (consumeMessage . FetchedMessage () . Message) f
+readerNextMessage onFailed f = undefined
 
 readerNextMessageWithTimeout :: MonadUnliftIO m => Int32 -> (C'pulsar_result -> m a) -> ReaderT (FetchedMessage Reader) m a -> ReaderT Reader m a
-readerNextMessageWithTimeout timeout onFailed f = do
-  Reader reader <- ask
-  withPtrPtr $ \msgPtr -> do
-    result <- liftIO $ c'pulsar_reader_read_next_with_timeout reader msgPtr $ CInt timeout
-    peekOn (isOk $ RawResult result) msgPtr (onFailed result) $ flip (consumeMessage . FetchedMessage () . Message) f
+readerNextMessageWithTimeout timeout onFailed f = undefined
 
 readerHasNextMessage :: MonadUnliftIO m => ReaderT Reader m Bool
-readerHasNextMessage = do
-  Reader reader <- ask
-  withPtrPtr $ \countPtr -> do
-    result <- liftIO $ c'pulsar_reader_has_message_available reader countPtr
-    peekOn (isOk $ RawResult result) countPtr (return False) (return . toBool)
+readerHasNextMessage = undefined

@@ -29,7 +29,7 @@ createProducer (Client client) configuration topic = do
         <$> toCString topic
         <*> mkProducerConfiguration configuration
   (ptrProducer, releasePtr) <- mkPtr
-  result <- liftIO $ c'pulsar_client_create_producer client topic' ptrConfig ptrProducer
+  result <- liftIO $ undefined client topic' ptrConfig ptrProducer
   producer <- peekOn (isOk $ RawResult result) ptrProducer (return $ Left $ RawResult result) (return . Right . Producer)
   return (producer, whenRight producer freeProducer >> releasePtr >> releaseParams)
 

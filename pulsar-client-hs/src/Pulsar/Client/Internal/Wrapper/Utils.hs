@@ -13,6 +13,7 @@ module Pulsar.Client.Internal.Wrapper.Utils
     whenOptionStringList,
     withPtrPtr,
     peekOn,
+    whenRight,
     -- Reexports
     MonadIO,
     MonadTrans,
@@ -116,3 +117,7 @@ untilM pred prod = do
   if cond
     then (:) <$> prod <*> untilM pred prod
     else return []
+
+whenRight :: Applicative m => Either a b -> (b -> m ()) -> m ()
+whenRight (Right x) f = f x
+whenRight _ _ = pure ()

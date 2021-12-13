@@ -1,6 +1,7 @@
 module Pulsar.Client.Internal.Wrapper.Producer
   ( Producer (..),
     withProducer',
+    freeProducer,
     sendMessage,
     flushMessages,
     producerLastSequenceId,
@@ -13,12 +14,16 @@ import Pulsar.Client.Internal.Wrapper.Pointers
 import Pulsar.Client.Internal.Wrapper.Utils
 
 withProducer' :: MonadIO m => Producer -> ReaderT Producer m a -> m a
-withProducer' producer@(Producer ptrProducer) f = do
+withProducer' producer f = do
   result <- runReaderT f producer
-  liftIO $ c'pulsar_producer_flush ptrProducer
-  liftIO $ c'pulsar_producer_close ptrProducer
-  liftIO $ c'pulsar_producer_free ptrProducer
+  freeProducer producer
   return result
+
+freeProducer :: MonadIO m => Producer -> m ()
+freeProducer (Producer ptrProducer) = liftIO $ do
+  c'pulsar_producer_flush ptrProducer
+  c'pulsar_producer_close ptrProducer
+  c'pulsar_producer_free ptrProducer
 
 sendMessage :: (MonadIO m, MonadReader Producer m) => BuiltMessage -> m RawResult
 sendMessage msg = do

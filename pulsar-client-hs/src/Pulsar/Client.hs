@@ -105,14 +105,13 @@ import Pulsar.Client.Internal.Wrapper.ConsumerConfiguration
 import Pulsar.Client.Internal.Wrapper.Message
 import Pulsar.Client.Internal.Wrapper.MessageId
 import Pulsar.Client.Internal.Wrapper.MessageRouter
+import Pulsar.Client.Internal.Wrapper.Pointers
 import Pulsar.Client.Internal.Wrapper.Producer
 import Pulsar.Client.Internal.Wrapper.ProducerConfiguration
 import Pulsar.Client.Internal.Wrapper.Reader
 import Pulsar.Client.Internal.Wrapper.ReaderConfiguration
 import Pulsar.Client.Internal.Wrapper.Result
 import Pulsar.Client.Internal.Wrapper.Utils
-
-newtype Client = Client {unClient :: Ptr C'pulsar_client_t}
 
 withClient :: MonadUnliftIO m => ClientConfiguration -> String -> ReaderT Client m a -> m a
 withClient configuration serviceUrl f = runResourceT $ do

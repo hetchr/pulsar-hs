@@ -1,7 +1,8 @@
 {-# LANGUAGE TypeFamilies #-}
 
 module Pulsar.Client.Internal.Wrapper.Pointers
-  ( Consumer (..),
+  ( Client (..),
+    Consumer (..),
     Message (..),
     MessageId (..),
     Producer (..),
@@ -13,6 +14,7 @@ module Pulsar.Client.Internal.Wrapper.Pointers
   )
 where
 
+import Pulsar.Client.Internal.Foreign.Client
 import Pulsar.Client.Internal.Foreign.Consumer
 import Pulsar.Client.Internal.Foreign.Message
 import Pulsar.Client.Internal.Foreign.MessageId
@@ -20,6 +22,8 @@ import Pulsar.Client.Internal.Foreign.Producer
 import Pulsar.Client.Internal.Foreign.Reader
 import Pulsar.Client.Internal.Foreign.Result
 import UnliftIO.Foreign hiding (new)
+
+newtype Client = Client {unClient :: Ptr C'pulsar_client_t}
 
 newtype Consumer = Consumer {unConsumer :: Ptr C'pulsar_consumer_t}
 

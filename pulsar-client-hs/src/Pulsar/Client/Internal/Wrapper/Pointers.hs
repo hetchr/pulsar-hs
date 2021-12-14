@@ -36,6 +36,7 @@ newtype Producer = Producer {unProducer :: Ptr C'pulsar_producer_t}
 newtype Reader = Reader {unReader :: Ptr C'pulsar_reader_t}
 
 newtype RawResult = RawResult {unRawResult :: C'pulsar_result}
+  deriving (Eq, Ord, Show)
 
 newtype BuiltMessage = BuiltMessage {unBuiltMessage :: Message}
 

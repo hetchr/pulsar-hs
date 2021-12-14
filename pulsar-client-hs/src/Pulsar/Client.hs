@@ -130,7 +130,7 @@ data TopicsSelection
   deriving (Eq, Show)
 
 newtype TopicName = TopicName {topicName :: String}
-  deriving (Eq, Show)
+  deriving (Eq, Ord, Show)
 
 withConsumer :: MonadUnliftIO m => ConsumerConfiguration -> String -> TopicsSelection -> (RawResult -> m a) -> ReaderT Consumer m a -> ReaderT Client m a
 withConsumer configuration subscriptionName topicsSelection onFailed f = do
